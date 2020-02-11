@@ -49,20 +49,20 @@ def _assert_same_type_and_equal(x: Any, y: Any) -> None:
 
 @composite
 def _int_to_bool_funcs(draw: Any) -> Callable[[int], bool]:
-    modulus = draw(integers(min_value=1))
-    remainder = draw(integers(0, modulus - 1))
+    modulus: int = draw(integers(min_value=1))
+    remainder: int = draw(integers(0, modulus - 1))
     return lambda x: (mod(x, modulus) == remainder)
 
 
 @composite
 def _incrementers(draw: Any) -> Callable[[int], int]:
-    increment = draw(integers(0, 1))
+    increment: int = draw(integers(0, 1))
     return lambda x: (x + increment)
 
 
 @composite
 def _modulusers(draw: Any) -> Callable[[int], int]:
-    modulus = draw(integers(min_value=1))
+    modulus: int = draw(integers(min_value=1))
     return lambda x: mod(x, modulus)
 
 
@@ -94,7 +94,7 @@ def test_init(input_: Union[int, List[int]]) -> None:
             match="ChainedIterable expected an iterable, "
             "but 'int' object is not iterable",
         ):
-            ChainedIterable(input_)
+            ChainedIterable(input_)  # type: ignore
     else:
         assert isinstance(ChainedIterable(iter(input_)), ChainedIterable)
 
@@ -266,7 +266,7 @@ def test_sorted(
 @given(
     ints=lists(integers()), args=just(()) | tuples(integers()),
 )
-def test_sum(ints: List[int], args: Tuple[str, ...]) -> None:
+def test_sum(ints: List[int], args: Tuple[int, ...]) -> None:
     _assert_same_type_and_equal(
         ChainedIterable(iter(ints)).sum(*args), sum(ints, *args),
     )
@@ -326,13 +326,6 @@ def test_pipe(ints: List[int], n: int) -> None:
     iterable = ChainedIterable(iter(ints)).pipe(chunked, n)
     assert isinstance(iterable, ChainedIterable)
     assert iterable == chunked(ints, n)
-
-
-@given(iterables=lists(lists(integers())))
-def test_unzip(iterables: List[List[int]]) -> None:
-    iterable = ChainedIterable(iterables).unzip()
-    assert isinstance(iterable, ChainedIterable)
-    assert iterable == zip(*iterables)
 
 
 # functools

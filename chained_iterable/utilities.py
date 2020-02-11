@@ -12,8 +12,13 @@ from chained_iterable.errors import UnsupportVersionError
 _T = TypeVar("_T")
 
 
-def second(_: Any, x: _T) -> _T:  # noqa: U101
-    return x
+def last_helper(_: Any, second: _T) -> _T:  # noqa: U101
+    return second
+
+
+def len_helper(pair: Tuple[int, Any]) -> int:
+    first, _ = pair
+    return first
 
 
 # sentinel

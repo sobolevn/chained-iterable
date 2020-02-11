@@ -40,6 +40,11 @@ steps:
   displayName: 'Install dependencies'
 
 - script: |
+    pip install mypy
+    mypy .
+  displayName: 'mypy'
+
+- script: |
     pip install pytest pytest-azurepipelines
     pytest tests/ --cov chained_iterable
   displayName: 'pytest'
