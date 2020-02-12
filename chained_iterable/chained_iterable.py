@@ -268,6 +268,11 @@ class ChainedIterable(Iterable[_T]):
     def last(self) -> _T:
         return self.reduce(last_helper)
 
+    def mapping(
+        self: "ChainedIterable[Tuple[_T, _U]]",
+    ) -> "ChainedMapping[_T, _U]":
+        return ChainedMapping(dict(self._iterable))
+
     def len(self) -> int:
         iterable = self.enumerate(start=1).map(len_helper)
         try:
@@ -544,6 +549,9 @@ class ChainedMapping(Mapping[_T, _U]):
     def __iter__(self) -> Iterator[_T]:
         yield from self._mapping
 
+    def __len__(self) -> int:
+        return len(self._mapping)
+
     def __repr__(self) -> str:
         return f"{type(self).__name__}({self._mapping!r})"
 
@@ -592,6 +600,24 @@ class ChainedMapping(Mapping[_T, _U]):
             },
         )
 
+    def frozenset_keys(self) -> FrozenSet[_T]:
+        return frozenset(self.keys())
+
+    def frozenset_values(self) -> FrozenSet[_U]:
+        return frozenset(self.values())
+
+    def frozenset_items(self) -> FrozenSet[Tuple[_T, _U]]:
+        return frozenset(self.items())
+
+    def list_keys(self) -> List[_T]:
+        return list(self.keys())
+
+    def list_values(self) -> List[_U]:
+        return list(self.values())
+
+    def list_items(self) -> List[Tuple[_T, _U]]:
+        return list(self.items())
+
     def map_keys(self, func: Callable[[_T], _V]) -> "ChainedMapping[_V, _U]":
         return self._new(
             {func(key): value for key, value in self._mapping.items()},
@@ -610,6 +636,17 @@ class ChainedMapping(Mapping[_T, _U]):
             new_key, new_value = func(key, value)
             out[new_key] = new_value
         return self._new(out)
+
+    def set_keys(self) -> Set[_T]:
+        return set(self.keys())
+
+    def set_values(self) -> Set[_U]:
+        return set(self.values())
+
+    def set_items(self) -> Set[Tuple[_T, _U]]:
+        return set(self.items())
+
+    # private
 
     @classmethod
     def _new(
