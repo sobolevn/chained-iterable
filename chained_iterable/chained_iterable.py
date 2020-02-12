@@ -26,6 +26,7 @@ from typing import FrozenSet
 from typing import Iterable
 from typing import Iterator
 from typing import List
+from typing import Mapping
 from typing import Optional
 from typing import overload
 from typing import Set
@@ -513,3 +514,105 @@ class ChainedIterable(Iterable[_T]):
 
     def nth_combination(self, r: int, index: int) -> Tuple[_T, ...]:
         return nth_combination(self._iterable, r, index)
+
+
+_V = TypeVar("_V")
+_W = TypeVar("_W")
+
+
+class ChainedMapping(Mapping[_T, _U]):
+    __slots__ = ("_mapping",)
+
+    def __init__(self, mapping: Mapping[_T, _U]) -> None:
+        if isinstance(mapping, Mapping):
+            self._mapping = mapping
+        else:
+            raise TypeError(
+                f"{type(self).__name__} expected a mapping, "
+                f"but {type(mapping).__name__} is not a mapping",
+            )
+
+    def __eq__(self, other: Any) -> bool:
+        if isinstance(other, Mapping):
+            return self._mapping == other
+        else:
+            return False
+
+    def __getitem__(self, item: _T) -> _U:
+        return self._mapping[item]
+
+    def __iter__(self) -> Iterator[_T]:
+        yield from self._mapping
+
+    def __repr__(self) -> str:
+        return f"{type(self).__name__}({self._mapping!r})"
+
+    def __str__(self) -> str:
+        return f"{type(self).__name__}({self._mapping})"
+
+    # built-in
+
+    def all_keys(self) -> bool:
+        return all(self._mapping.keys())
+
+    def all_values(self) -> bool:
+        return all(self._mapping.values())
+
+    def any_keys(self) -> bool:
+        return any(self._mapping.keys())
+
+    def any_values(self) -> bool:
+        return any(self._mapping.values())
+
+    def dict(self) -> Dict[_T, _U]:
+        return dict(self._mapping)
+
+    def filter_keys(
+        self, func: Callable[[_T], bool],
+    ) -> "ChainedMapping[_T, _U]":
+        return self._new(
+            {key: value for key, value in self._mapping.items() if func(key)},
+        )
+
+    def filter_values(
+        self, func: Callable[[_U], bool],
+    ) -> "ChainedMapping[_T, _U]":
+        return self._new(
+            {key: value for key, value in self._mapping.items() if func(value)},
+        )
+
+    def filter_items(
+        self, func: Callable[[_T, _U], bool],
+    ) -> "ChainedMapping[_T, _U]":
+        return self._new(
+            {
+                key: value
+                for key, value in self._mapping.items()
+                if func(key, value)
+            },
+        )
+
+    def map_keys(self, func: Callable[[_T], _V]) -> "ChainedMapping[_V, _U]":
+        return self._new(
+            {func(key): value for key, value in self._mapping.items()},
+        )
+
+    def map_values(self, func: Callable[[_U], _V]) -> "ChainedMapping[_T, _V]":
+        return self._new(
+            {key: func(value) for key, value in self._mapping.items()},
+        )
+
+    def map_items(
+        self, func: Callable[[_T, _U], Tuple[_V, _W]],
+    ) -> "ChainedMapping[_V, _W]":
+        out = {}
+        for key, value in self._mapping.items():
+            new_key, new_value = func(key, value)
+            out[new_key] = new_value
+        return self._new(out)
+
+    @classmethod
+    def _new(
+        cls: Type["ChainedMapping"], mapping: Dict[_V, _W],
+    ) -> "ChainedMapping[_V, _W]":
+        return cls(type(mapping)(mapping))
