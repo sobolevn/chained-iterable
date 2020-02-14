@@ -5,5 +5,5 @@ from chained_iterable.errors import EmptyIterableError
 from chained_iterable.errors import MultipleElementsError
 
 
-__version__ = "0.5.1"
+__version__ = "0.5.2"
 _ = {ChainedIterable, ChainedMapping, EmptyIterableError, MultipleElementsError}

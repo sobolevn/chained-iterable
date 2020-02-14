@@ -41,10 +41,6 @@ repos:
       flake8-unused-arguments,
       wemake-python-styleguide,
     ]
-- repo: https://github.com/pre-commit/mirrors-mypy
-  rev: v0.761
-  hooks:
-  - id: mypy
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v2.5.0
   hooks:

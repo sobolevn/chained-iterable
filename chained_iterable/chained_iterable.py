@@ -501,7 +501,7 @@ class ChainedIterable(Iterable[_T]):
         default: bool = False,
         pred: Optional[Callable[[_T], object]] = None,
     ) -> Union[_T, bool]:
-        return first_true(self._iterable, default=default, pred=pred)  # type: ignore
+        return first_true(self._iterable, default=default, pred=pred)
 
     def random_product(
         self, *iterables: Iterable, repeat: int = 1,
@@ -636,6 +636,33 @@ class ChainedMapping(Mapping[_T, _U]):
             new_key, new_value = func(key, value)
             out[new_key] = new_value
         return self._new(out)
+
+    def max_keys(
+        self,
+        *,
+        key: _max_min_key_annotation = _max_min_key_default,
+        default: Union[_T, Sentinel] = sentinel,
+    ) -> _T:
+        _, kwargs = drop_sentinel(key=key, default=default)
+        return max(self.keys(), **kwargs)
+
+    def max_values(
+        self,
+        *,
+        key: _max_min_key_annotation = _max_min_key_default,
+        default: Union[_T, Sentinel] = sentinel,
+    ) -> _T:
+        _, kwargs = drop_sentinel(key=key, default=default)
+        return max(self.values(), **kwargs)
+
+    def max_items(
+        self,
+        *,
+        key: _max_min_key_annotation = _max_min_key_default,
+        default: Union[_T, Sentinel] = sentinel,
+    ) -> _T:
+        _, kwargs = drop_sentinel(key=key, default=default)
+        return max(self.items(), **kwargs)
 
     def set_keys(self) -> Set[_T]:
         return set(self.keys())

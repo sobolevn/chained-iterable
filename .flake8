@@ -19,5 +19,5 @@ per-file-ignores:
     # WPS412 - Found `__init__.py` module with logic
 
     # temporary: D, WPS
-max-line-length = 88
+max-line-length = 80
 docstring-convention = google
